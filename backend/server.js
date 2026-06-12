@@ -27,7 +27,11 @@ const app = express();
 
 // Global Middlewares
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://indian-tax-expense-planner.onrender.com'],
+  origin: [
+    'http://localhost:5173', 
+    'https://indian-tax-expense-planner.onrender.com',
+    'https://indian-tax-expense-planner.vercel.app'
+  ],
   credentials: true
 }));
 app.use(express.json());

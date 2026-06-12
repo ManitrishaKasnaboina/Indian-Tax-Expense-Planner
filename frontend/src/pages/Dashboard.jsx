@@ -288,7 +288,7 @@ const Dashboard = () => {
             <div className="rounded-3xl bg-white/10 p-4">💰</div>
           </div>
           <p className="mt-4 text-slate-200/90">You can save more by investing in Section 80C and optimizing deductions.</p>
-          <button className="btn btn-primary mt-6 bg-white text-indigo-700 hover:bg-slate-100 border-none">Explore Deductions</button>
+          <button onClick={() => navigate('/tax-planner')} className="btn btn-primary mt-6 bg-white text-indigo-700 hover:bg-slate-100 border-none">Explore Deductions</button>
         </div>
       </div>
 

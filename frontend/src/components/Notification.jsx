@@ -9,13 +9,13 @@ const Notification = () => {
   const getStyles = (type) => {
     switch (type) {
       case 'success':
-        return 'bg-success text-white border-success/50';
+        return 'bg-emerald-500 text-white border-emerald-500/50';
       case 'error':
-        return 'bg-danger text-white border-danger/50';
+        return 'bg-red-500 text-white border-red-500/50';
       case 'warning':
-        return 'bg-warning text-white border-warning/50';
+        return 'bg-amber-500 text-white border-amber-500/50';
       default:
-        return 'bg-primary text-white border-primary/50';
+        return 'bg-blue-500 text-white border-blue-500/50';
     }
   };
 
@@ -33,14 +33,10 @@ const Notification = () => {
 
   return (
     <div className="fixed top-4 right-4 z-[9999] space-y-3 max-w-md pointer-events-none flex flex-col items-end">
-      <AnimatePresence>
+      <div className="flex flex-col gap-3">
         {notifications.map(notif => (
-          <motion.div
+          <div
             key={notif.id}
-            initial={{ opacity: 0, x: 50, scale: 0.95 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: 20, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
             className={`${getStyles(notif.type)} border rounded-lg p-4 flex items-start gap-3 shadow-[0_8px_30px_rgb(0,0,0,0.3)] pointer-events-auto backdrop-blur-md min-w-[300px]`}
           >
             <div className="flex-shrink-0 mt-0.5">
@@ -55,9 +51,9 @@ const Notification = () => {
             >
               <X size={18} />
             </button>
-          </motion.div>
+          </div>
         ))}
-      </AnimatePresence>
+      </div>
     </div>
   );
 };

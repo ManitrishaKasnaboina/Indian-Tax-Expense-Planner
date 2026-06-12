@@ -84,7 +84,7 @@ const Expenses = () => {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-semibold m-0">Transactions</h1>
+          <h1 className="text-3xl font-semibold m-0">Transactions & Expenses</h1>
           <p className="text-slate-400 mt-1 mb-0">Track income and expenses with category, type and amount details.</p>
           {error && <p className="text-danger mt-3">{error}</p>}
         </div>

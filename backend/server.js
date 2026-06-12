@@ -26,7 +26,10 @@ connectDB().catch(err => {
 const app = express();
 
 // Global Middlewares
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173', 'https://indian-tax-expense-planner.onrender.com'],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

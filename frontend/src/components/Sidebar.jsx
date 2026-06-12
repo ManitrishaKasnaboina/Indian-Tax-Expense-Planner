@@ -8,9 +8,8 @@ const Sidebar = () => {
   const { logout } = useContext(AuthContext);
 
   const navItems = [
-    { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
-    { name: 'Transactions', path: '/transactions', icon: <ListChecks size={20} /> },
-    { name: 'Expenses', path: '/expenses', icon: <Receipt size={20} /> },
+    { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
+    { name: 'Transactions & Expenses', path: '/transactions', icon: <ListChecks size={20} /> },
     { name: 'Budget', path: '/budget', icon: <PiggyBank size={20} /> },
     { name: 'Tax Planner', path: '/tax-planner', icon: <Calculator size={20} /> },
     { name: 'Salary Analyzer', path: '/salary-analyzer', icon: <FileText size={20} /> },

@@ -5,7 +5,13 @@ const generateToken = require('../utils/generateToken');
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const name = req.body && req.body.name;
+  const email = req.body && req.body.email;
+  const password = req.body && req.body.password;
+
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: 'Name, email and password are required' });
+  }
 
   try {
     const userExists = await User.findOne({ email });
@@ -41,7 +47,12 @@ const registerUser = async (req, res) => {
 // @route   POST /api/auth/login
 // @access  Public
 const authUser = async (req, res) => {
-  const { email, password } = req.body;
+  const email = req.body && req.body.email;
+  const password = req.body && req.body.password;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email and password are required' });
+  }
 
   try {
     const user = await User.findOne({ email });

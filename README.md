@@ -4,9 +4,9 @@ A modern MERN stack personal finance management web application for tracking exp
 
 ---
 
-# 🚀 Features
+#  Features
 
-## ✅ Authentication
+## Authentication
 - User Registration
 - User Login
 - JWT Authentication
@@ -389,8 +389,4 @@ JWT_SECRET=your_secret_key
 - Expense Categories
 - Budget Monitoring
 
----
 
-# 📄 License
-
-This project is for educational purposes.

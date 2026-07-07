@@ -37,12 +37,24 @@ app.use(cors({
   ],
   credentials: true
 }));
-app.use(express.json());
+// Capture raw request body for debugging malformed JSON payloads
+app.use(express.json({
+  verify: (req, res, buf) => {
+    try {
+      req.rawBody = buf.toString('utf8');
+    } catch (e) {
+      req.rawBody = '';
+    }
+  }
+}));
 app.use(express.urlencoded({ extended: true }));
 
 // Handle invalid JSON body errors from express.json()
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    // Log a short preview of the raw body to help diagnose malformed payloads
+    const preview = req && req.rawBody ? req.rawBody.slice(0, 1000) : '<no raw body>';
+    console.warn('Invalid JSON payload received. Raw body preview:\n', preview);
     return res.status(400).json({ message: 'Invalid JSON payload' });
   }
   next();

@@ -1,9 +1,23 @@
 import { Bell, Search, User } from 'lucide-react';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const Navbar = () => {
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const toggleProfile = () => setProfileOpen((prev) => !prev);
+  const goToSettings = () => {
+    setProfileOpen(false);
+    navigate('/settings');
+  };
+  const handleLogout = () => {
+    setProfileOpen(false);
+    logout();
+    navigate('/login');
+  };
 
   return (
     <header className="h-[70px] bg-surface border-b border-glass-border flex items-center justify-between px-8">
@@ -16,20 +30,29 @@ const Navbar = () => {
         />
       </div>
 
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-6 relative">
         <button className="bg-transparent border-none text-slate-400 cursor-pointer relative hover:text-slate-200 transition-colors">
           <Bell size={22} />
           <span className="absolute -top-0.5 -right-0.5 bg-danger w-2 h-2 rounded-full"></span>
         </button>
         
-        <div className="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity">
-          <div className="text-right">
-            <p className="m-0 text-sm font-semibold">{user?.name || 'User'}</p>
-            <p className="m-0 text-xs text-slate-400">Free Plan</p>
-          </div>
-          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
-            <User size={20} />
-          </div>
+        <div className="relative">
+          <button onClick={toggleProfile} className="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity">
+            <div className="text-right">
+              <p className="m-0 text-sm font-semibold">{user?.name || 'User'}</p>
+              <p className="m-0 text-xs text-slate-400">Free Plan</p>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
+              <User size={20} />
+            </div>
+          </button>
+
+          {profileOpen && (
+            <div className="absolute right-0 mt-3 w-48 rounded-2xl border border-glass-border bg-surface shadow-xl">
+              <button onClick={goToSettings} className="w-full text-left px-4 py-3 hover:bg-slate-900 transition">Profile & Settings</button>
+              <button onClick={handleLogout} className="w-full text-left px-4 py-3 hover:bg-slate-900 transition">Logout</button>
+            </div>
+          )}
         </div>
       </div>
     </header>

@@ -5,6 +5,7 @@ import { Plus } from 'lucide-react';
 import ExpenseOverview from '../components/ExpenseOverview';
 import Charts from '../components/Charts';
 import dashboardService from '../services/dashboardService';
+import expenseService from '../services/expenseService';
 import { AuthContext } from '../context/AuthContext';
 
 const Dashboard = () => {
@@ -13,84 +14,59 @@ const Dashboard = () => {
   const [summary, setSummary] = useState(null);
   const [categoryPie, setCategoryPie] = useState([]);
   const [budgetVsActual, setBudgetVsActual] = useState([]);
+  const [lineChartData, setLineChartData] = useState([]);
+  const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
-  const lineChartData = [
-    { name: 'Dec', income: 42000, expense: 16000 },
-    { name: 'Jan', income: 56000, expense: 19000 },
-    { name: 'Feb', income: 52000, expense: 21000 },
-    { name: 'Mar', income: 64000, expense: 22000 },
-    { name: 'Apr', income: 58000, expense: 18000 },
-    { name: 'May', income: 68750, expense: 24350 }
-  ];
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [summaryData, chartData] = await Promise.all([
+        const [summaryData, chartData, monthlyTrends, expenseData] = await Promise.all([
           dashboardService.getDashboardSummary(),
-          dashboardService.getChartData()
+          dashboardService.getChartData(),
+          dashboardService.getMonthlyTrends(),
+          expenseService.getExpenses()
         ]);
 
-        const totalIncome = summaryData?.taxSummary?.annualGrossIncome || 320000;
-        const totalExpenses = summaryData?.expenseSummary?.totalSpent || 74370;
+        const totalIncome = summaryData?.taxSummary?.annualGrossIncome ?? 0;
+        const totalExpenses = summaryData?.expenseSummary?.totalSpent ?? 0;
         const balance = totalIncome - totalExpenses;
 
         setSummary({
           balance,
           totalIncome,
           totalExpenses,
-          taxLiability: summaryData?.taxSummary?.taxLiability || 215800,
-          effectiveRate: summaryData?.taxSummary?.annualGrossIncome ? ((summaryData.taxSummary.taxLiability / summaryData.taxSummary.annualGrossIncome) * 100).toFixed(1) : 12.0,
-          overallBudget: summaryData?.budgetSummary?.budgetLimit || 45000,
+          taxLiability: summaryData?.taxSummary?.taxLiability ?? 0,
+          effectiveRate: summaryData?.taxSummary?.annualGrossIncome ? ((summaryData.taxSummary.taxLiability / summaryData.taxSummary.annualGrossIncome) * 100).toFixed(1) : 0,
+          overallBudget: summaryData?.budgetSummary?.budgetLimit ?? 0,
           usedBudget: totalExpenses,
-          remainingBudget: Math.max((summaryData?.budgetSummary?.budgetLimit || 45000) - totalExpenses, 0),
-          lastMonthChange: 12.5
+          remainingBudget: Math.max((summaryData?.budgetSummary?.budgetLimit ?? 0) - totalExpenses, 0),
+          lastMonthChange: 0
         });
 
-        setCategoryPie(chartData.categoryPie?.length ? chartData.categoryPie : [
-          { name: 'Food & Dining', value: 18450 },
-          { name: 'Transport', value: 12650 },
-          { name: 'Shopping', value: 10320 },
-          { name: 'Bills & Utilities', value: 8910 },
-          { name: 'Entertainment', value: 6250 },
-          { name: 'Others', value: 17790 }
-        ]);
+        setCategoryPie(chartData.categoryPie ?? []);
+        setBudgetVsActual(chartData.budgetVsActual ?? []);
+        setLineChartData(Array.isArray(monthlyTrends) ? monthlyTrends : []);
+        setTransactions(Array.isArray(expenseData) ? expenseData : []);
 
-        setBudgetVsActual(chartData.budgetVsActual?.length ? chartData.budgetVsActual : [
-          { category: 'Food & Dining', limit: 25000, spent: 18450 },
-          { category: 'Transport', limit: 15000, spent: 12650 },
-          { category: 'Shopping', limit: 14000, spent: 10320 },
-          { category: 'Bills & Utilities', limit: 12000, spent: 8910 }
-        ]);
       } catch (err) {
-        setError('Failed to load dashboard data. Showing mock values.');
+        setError('Failed to load dashboard data.');
         setSummary({
-          balance: 245630,
-          totalIncome: 320000,
-          totalExpenses: 74370,
-          taxLiability: 215800,
-          effectiveRate: 12.0,
-          overallBudget: 45000,
-          usedBudget: 32400,
-          remainingBudget: 12600,
-          lastMonthChange: 12.5
+          balance: 0,
+          totalIncome: 0,
+          totalExpenses: 0,
+          taxLiability: 0,
+          effectiveRate: 0,
+          overallBudget: 0,
+          usedBudget: 0,
+          remainingBudget: 0,
+          lastMonthChange: 0
         });
-        setCategoryPie([
-          { name: 'Food & Dining', value: 18450 },
-          { name: 'Transport', value: 12650 },
-          { name: 'Shopping', value: 10320 },
-          { name: 'Bills & Utilities', value: 8910 },
-          { name: 'Entertainment', value: 6250 },
-          { name: 'Others', value: 17790 }
-        ]);
-        setBudgetVsActual([
-          { category: 'Food & Dining', limit: 25000, spent: 18450 },
-          { category: 'Transport', limit: 15000, spent: 12650 },
-          { category: 'Shopping', limit: 14000, spent: 10320 },
-          { category: 'Bills & Utilities', limit: 12000, spent: 8910 }
-        ]);
+        setCategoryPie([]);
+        setBudgetVsActual([]);
+        setLineChartData([]);
+        setTransactions([]);
       } finally {
         setLoading(false);
       }
@@ -100,6 +76,8 @@ const Dashboard = () => {
   }, []);
 
   const totalCategoryValue = categoryPie.reduce((sum, entry) => sum + entry.value, 0);
+  const hasExpenseData = categoryPie.length > 0 || budgetVsActual.length > 0;
+  const hasDashboardActivity = categoryPie.length > 0 || transactions.length > 0 || lineChartData.length > 0 || budgetVsActual.length > 0;
 
   const topCategories = categoryPie.slice(0, 4).map(item => ({
     name: item.name,
@@ -212,25 +190,32 @@ const Dashboard = () => {
             </select>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
-            <div className="flex items-center justify-center">
-              <ExpenseOverview data={categoryPie} />
-            </div>
-            <div className="space-y-4">
-              {categoryPie.slice(0, 6).map((item, idx) => (
-                <div key={item.name} className="flex items-center justify-between gap-4 rounded-3xl border border-glass-border bg-slate-950/50 p-4">
-                  <div className="flex items-center gap-3">
-                    <span className="inline-block h-3 w-3 rounded-full" style={{ backgroundColor: ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#22C55E'][idx % 6] }} />
-                    <div>
-                      <p className="text-sm text-slate-300">{item.name}</p>
-                      <p className="text-sm text-slate-500">₹{item.value.toLocaleString('en-IN')}</p>
+          {hasExpenseData ? (
+            <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
+              <div className="flex items-center justify-center">
+                <ExpenseOverview data={categoryPie} />
+              </div>
+              <div className="space-y-4">
+                {categoryPie.slice(0, 6).map((item, idx) => (
+                  <div key={item.name} className="flex items-center justify-between gap-4 rounded-3xl border border-glass-border bg-slate-950/50 p-4">
+                    <div className="flex items-center gap-3">
+                      <span className="inline-block h-3 w-3 rounded-full" style={{ backgroundColor: ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#22C55E'][idx % 6] }} />
+                      <div>
+                        <p className="text-sm text-slate-300">{item.name}</p>
+                        <p className="text-sm text-slate-500">₹{item.value.toLocaleString('en-IN')}</p>
+                      </div>
                     </div>
+                    <span className="text-sm text-slate-400">{totalCategoryValue ? Math.round((item.value / totalCategoryValue) * 100) : 0}%</span>
                   </div>
-                  <span className="text-sm text-slate-400">{totalCategoryValue ? Math.round((item.value / totalCategoryValue) * 100) : 0}%</span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex h-[320px] flex-col items-center justify-center rounded-3xl border border-dashed border-slate-700 bg-slate-950/50 p-6 text-center text-slate-400">
+              <p className="text-lg font-semibold">No expense data yet</p>
+              <p className="mt-2 text-sm">Add expenses to start seeing category and cash flow insights.</p>
+            </div>
+          )}
         </div>
 
         <div className="glass-card p-6">
@@ -301,41 +286,43 @@ const Dashboard = () => {
           <button onClick={() => navigate('/transactions')} className="text-primary text-sm font-semibold">View All Transactions →</button>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-left border-separate border-spacing-y-3">
-            <thead>
-              <tr className="text-slate-400 text-sm uppercase tracking-[0.15em]">
-                <th className="pb-4">Date</th>
-                <th className="pb-4">Description</th>
-                <th className="pb-4">Category</th>
-                <th className="pb-4">Type</th>
-                <th className="pb-4 text-right">Amount</th>
-                <th className="pb-4">Method</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                { date: '21 May 2024', description: 'Grocery Shopping', category: 'Food & Dining', type: 'Expense', amount: '-1,250', method: 'UPI' },
-                { date: '20 May 2024', description: 'Salary Credit', category: 'Salary', type: 'Income', amount: '+68,750', method: 'Bank Transfer' }
-              ].map((item) => (
-                <tr key={item.description} className="bg-white/5 rounded-3xl border border-glass-border mb-3">
-                  <td className="py-4 pr-6 text-sm text-slate-300">{item.date}</td>
-                  <td className="py-4 pr-6 text-sm text-slate-200">{item.description}</td>
-                  <td className="py-4 pr-6 text-sm text-slate-200">{item.category}</td>
-                  <td className="py-4 pr-6">
-                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${item.type === 'Income' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
-                      {item.type}
-                    </span>
-                  </td>
-                  <td className={`py-4 pr-6 text-right text-sm font-semibold ${item.type === 'Income' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                    ₹{item.amount.replace('₹', '')}
-                  </td>
-                  <td className="py-4 text-sm text-slate-300">{item.method}</td>
+        {transactions.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-slate-700 bg-slate-950/50 p-8 text-center text-slate-400">
+            <p className="text-lg font-semibold">No transactions yet</p>
+            <p className="mt-2 text-sm">Add income or expenses to see your recent activity here.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-left border-separate border-spacing-y-3">
+              <thead>
+                <tr className="text-slate-400 text-sm uppercase tracking-[0.15em]">
+                  <th className="pb-4">Date</th>
+                  <th className="pb-4">Description</th>
+                  <th className="pb-4">Category</th>
+                  <th className="pb-4">Type</th>
+                  <th className="pb-4 text-right">Amount</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {transactions.slice(0, 5).map((expense) => (
+                  <tr key={expense._id} className="bg-white/5 rounded-3xl border border-glass-border mb-3">
+                    <td className="py-4 pr-6 text-sm text-slate-300">{new Date(expense.date).toLocaleDateString()}</td>
+                    <td className="py-4 pr-6 text-sm text-slate-200">{expense.description || expense.category}</td>
+                    <td className="py-4 pr-6 text-sm text-slate-200">{expense.category}</td>
+                    <td className="py-4 pr-6">
+                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${expense.type === 'income' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`}>
+                        {expense.type.charAt(0).toUpperCase() + expense.type.slice(1)}
+                      </span>
+                    </td>
+                    <td className={`py-4 pr-6 text-right text-sm font-semibold ${expense.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      {expense.type === 'income' ? '+' : '-'} ₹{expense.amount.toLocaleString('en-IN')}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </motion.div>
   );

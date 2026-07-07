@@ -19,17 +19,9 @@ const storage = multer.diskStorage({
   }
 });
 
-// File filter (restrict to PDF)
+// File filter: allow any file type for salary slips
 const fileFilter = (req, file, cb) => {
-  const filetypes = /pdf/;
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = file.mimetype === 'application/pdf';
-
-  if (extname && mimetype) {
-    return cb(null, true);
-  } else {
-    cb(new Error('Only PDF files are allowed!'), false);
-  }
+  cb(null, true);
 };
 
 const upload = multer({

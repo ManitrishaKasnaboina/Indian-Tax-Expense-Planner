@@ -46,18 +46,27 @@ const TaxPlanner = () => {
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
     try {
-      await taxService.updateTaxProfile({
+      const updatedProfile = await taxService.updateTaxProfile({
         monthlyIncome: Number(monthlyIncome),
         taxRegime,
         deductions: {
-          section80C: Number(sec80C),
-          section80D: Number(sec80D)
+          section80C: Number(sec80C) || 0,
+          section80D: Number(sec80D) || 0
         }
       });
-      fetchOverview(); // Refresh calculations
+
+      setSec80C(Number(updatedProfile.deductions.section80C || 0));
+      setSec80D(Number(updatedProfile.deductions.section80D || 0));
+      setTaxRegime(updatedProfile.taxRegime || taxRegime);
+      setMonthlyIncome(updatedProfile.monthlyIncome || monthlyIncome);
+
+      await fetchOverview(); // Refresh calculations
     } catch (err) {
       setError('Failed to update tax profile');
+      setLoading(false);
     }
   };
 
@@ -88,13 +97,26 @@ const TaxPlanner = () => {
             </div>
             
             <h4 className="mt-4 mb-2 pb-2 border-b border-glass-border">Deductions (Old Regime)</h4>
+            <p className="text-slate-400 text-sm mb-4">Note: Section 80C and 80D deductions only apply under the Old Tax Regime. Choose Old Regime to see their effect on your tax liability.</p>
             <div>
               <label className="block mb-2 text-sm">Section 80C (Max ₹1.5L)</label>
-              <input type="number" className="input-field" value={sec80C} onChange={e => setSec80C(e.target.value)} min="0" />
+              <input
+                type="number"
+                className="input-field"
+                value={sec80C}
+                onChange={e => setSec80C(e.target.value === '' ? '' : Number(e.target.value))}
+                min="0"
+              />
             </div>
             <div>
               <label className="block mb-2 text-sm">Section 80D (Health Ins.)</label>
-              <input type="number" className="input-field" value={sec80D} onChange={e => setSec80D(e.target.value)} min="0" />
+              <input
+                type="number"
+                className="input-field"
+                value={sec80D}
+                onChange={e => setSec80D(e.target.value === '' ? '' : Number(e.target.value))}
+                min="0"
+              />
             </div>
             
             <button type="submit" className="btn btn-primary mt-4">Calculate & Save</button>

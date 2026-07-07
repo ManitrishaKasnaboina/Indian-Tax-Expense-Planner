@@ -19,12 +19,12 @@ const extractComponent = (text, keywords) => {
   return 0;
 };
 
-// @desc    Upload & Parse Salary Slip PDF
+// @desc    Upload & Parse Salary Slip
 // @route   POST /api/salary/upload
 // @access  Private
 const uploadSalarySlip = async (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ message: 'Please upload a PDF salary slip' });
+    return res.status(400).json({ message: 'Please upload a salary slip file' });
   }
 
   const filePath = req.file.path;
@@ -33,13 +33,14 @@ const uploadSalarySlip = async (req, res) => {
   try {
     const dataBuffer = fs.readFileSync(filePath);
     let extractedText = '';
+    let parseFailed = false;
     
     try {
       const parsedPdf = await pdfParse(dataBuffer);
       extractedText = parsedPdf.text;
-    } catch (pdfError) {
-      console.error('PDF parsing error, falling back to manual entry:', pdfError.message);
-      // We will continue with empty extractedText so the user gets a structured form to fill
+    } catch (parseError) {
+      console.error('Salary slip parsing error, falling back to manual entry:', parseError.message);
+      parseFailed = true;
     }
 
     // Attempt to extract fields
@@ -106,7 +107,8 @@ const uploadSalarySlip = async (req, res) => {
       fileName: salarySlip.fileName,
       month: salarySlip.month,
       parsedData: salarySlip.parsedData,
-      message: 'Salary slip uploaded and parsed successfully. Please verify the components.'
+      parseFailed,
+      message: parseFailed ? 'Salary slip uploaded successfully, but automatic parsing did not complete. Review the details manually or upload a PDF for the best results.' : 'Salary slip uploaded and parsed successfully. Please verify the components.'
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -136,18 +138,21 @@ const analyzeSalaryComponents = async (req, res) => {
     await slip.save();
 
     if (syncToProfile) {
-      // Sync basic details back to user profile for tax estimations
       const user = await User.findById(req.user._id);
       if (user) {
         // Sync monthlyIncome with gross salary
         user.monthlyIncome = parsedData.grossSalary || user.monthlyIncome;
+        
+        if (!user.deductions) {
+          user.deductions = {};
+        }
         
         // Sync PF & Professional Tax deductions automatically (multiplied by 12 for annual limits)
         user.deductions.section80C = Math.min(150000, (user.deductions.section80C || 0) + (parsedData.providentFund * 12));
         user.deductions.otherDeductions = (user.deductions.otherDeductions || 0) + (parsedData.professionalTax * 12);
         
         // Setup HRA details in user deductions
-        user.deductions.hraReceived = parsedData.hra || user.deductions.hraReceived;
+        user.deductions.hraReceived = parsedData.hra || (user.deductions.hraReceived || 0);
         
         await user.save();
       }

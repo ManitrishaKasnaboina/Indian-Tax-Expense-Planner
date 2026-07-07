@@ -4,7 +4,11 @@ const uploadSalarySlip = async (file) => {
   const formData = new FormData();
   formData.append('salarySlip', file);
 
-  const response = await api.post('/salary/upload', formData);
+  const response = await api.post('/salary/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data;
 };
 

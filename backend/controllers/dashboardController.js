@@ -227,13 +227,14 @@ const getSavingsOverview = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json({
-      investments: [
-        { name: 'Section 80C (PPF, ELSS, EPF)', limit: 150000, current: user.deductions.section80C || 0 },
-        { name: 'Section 80D (Health Insurance)', limit: 25000, current: user.deductions.section80D || 0 },
-        { name: 'NPS Section 80CCD(1B)', limit: 50000, current: user.deductions.nps || 0 }
-      ]
-    });
+      const deductions = user.deductions || {};
+      res.json({
+        investments: [
+          { name: 'Section 80C (PPF, ELSS, EPF)', limit: 150000, current: deductions.section80C || 0 },
+          { name: 'Section 80D (Health Insurance)', limit: 25000, current: deductions.section80D || 0 },
+          { name: 'NPS Section 80CCD(1B)', limit: 50000, current: deductions.nps || 0 }
+        ]
+      });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -260,7 +261,16 @@ const getTaxOverview = async (req, res) => {
       savingsInNewRegime: taxResults.oldRegime.totalTaxLiability - taxResults.newRegime.totalTaxLiability,
       recommendedRegime: taxResults.recommendedRegime,
       deductionsTotal: taxResults.oldRegime.totalDeductions,
-      advisoryNote: taxResults.advisoryNote
+      advisoryNote: taxResults.advisoryNote,
+      deductions: {
+        section80C: user.deductions?.section80C || 0,
+        section80D: user.deductions?.section80D || 0,
+        nps: user.deductions?.nps || 0,
+        hraReceived: user.deductions?.hraReceived || 0,
+        rentPaid: user.deductions?.rentPaid || 0,
+        homeLoanInterest: user.deductions?.homeLoanInterest || 0,
+        otherDeductions: user.deductions?.otherDeductions || 0
+      }
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

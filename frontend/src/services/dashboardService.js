@@ -10,9 +10,15 @@ const getChartData = async () => {
   return response.data;
 };
 
+const getMonthlyTrends = async () => {
+  const response = await api.get('/analytics/monthly-expenses');
+  return response.data;
+};
+
 const dashboardService = {
   getDashboardSummary,
   getChartData,
+  getMonthlyTrends,
 };
 
 export default dashboardService;

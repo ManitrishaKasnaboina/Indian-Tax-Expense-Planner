@@ -103,14 +103,15 @@ const updateUserProfile = async (req, res) => {
       user.financialYear = req.body.financialYear || user.financialYear;
       
       if (req.body.deductions) {
+        const currentDeductions = user.deductions || {};
         user.deductions = {
-          section80C: req.body.deductions.section80C !== undefined ? req.body.deductions.section80C : user.deductions.section80C,
-          section80D: req.body.deductions.section80D !== undefined ? req.body.deductions.section80D : user.deductions.section80D,
-          nps: req.body.deductions.nps !== undefined ? req.body.deductions.nps : user.deductions.nps,
-          hraReceived: req.body.deductions.hraReceived !== undefined ? req.body.deductions.hraReceived : user.deductions.hraReceived,
-          rentPaid: req.body.deductions.rentPaid !== undefined ? req.body.deductions.rentPaid : user.deductions.rentPaid,
-          homeLoanInterest: req.body.deductions.homeLoanInterest !== undefined ? req.body.deductions.homeLoanInterest : user.deductions.homeLoanInterest,
-          otherDeductions: req.body.deductions.otherDeductions !== undefined ? req.body.deductions.otherDeductions : user.deductions.otherDeductions
+          section80C: req.body.deductions.section80C !== undefined ? req.body.deductions.section80C : (currentDeductions.section80C || 0),
+          section80D: req.body.deductions.section80D !== undefined ? req.body.deductions.section80D : (currentDeductions.section80D || 0),
+          nps: req.body.deductions.nps !== undefined ? req.body.deductions.nps : (currentDeductions.nps || 0),
+          hraReceived: req.body.deductions.hraReceived !== undefined ? req.body.deductions.hraReceived : (currentDeductions.hraReceived || 0),
+          rentPaid: req.body.deductions.rentPaid !== undefined ? req.body.deductions.rentPaid : (currentDeductions.rentPaid || 0),
+          homeLoanInterest: req.body.deductions.homeLoanInterest !== undefined ? req.body.deductions.homeLoanInterest : (currentDeductions.homeLoanInterest || 0),
+          otherDeductions: req.body.deductions.otherDeductions !== undefined ? req.body.deductions.otherDeductions : (currentDeductions.otherDeductions || 0)
         };
       }
 

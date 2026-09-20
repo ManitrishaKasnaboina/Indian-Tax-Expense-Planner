@@ -27,11 +27,17 @@ const app = express();
 
 // Global Middlewares
 app.use(cors({
-  origin: [
-    'http://localhost:5173', 
-    'https://indian-tax-expense-planner.onrender.com',
-    'https://indian-tax-expense-planner.vercel.app'
-  ],
+  origin: (origin, callback) => {
+    const allowedOrigins = (process.env.FRONTEND_URLS || '')
+      .split(',')
+      .map(url => url.trim())
+      .filter(Boolean);
+    const isLocalOrigin = origin === 'http://localhost:5173';
+    const isProjectVercelOrigin = origin && /^https:\/\/indian-tax-expense-planner(?:-[a-z0-9-]+)?\.vercel\.app$/.test(origin);
+    const isAllowedOrigin = !origin || isLocalOrigin || isProjectVercelOrigin || allowedOrigins.includes(origin);
+
+    callback(isAllowedOrigin ? null : new Error('Origin not allowed by CORS'), isAllowedOrigin);
+  },
   credentials: true
 }));
 app.use(express.json());

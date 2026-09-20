@@ -12,21 +12,22 @@ if (dnsServers.length > 0) {
 
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGO_URI || process.env.MONGO_URL || process.env.DB_URL || 'mongodb://localhost:27017/tax_planner';
+    const mongoURI = process.env.MONGO_URL;
 
-    if (!process.env.MONGO_URI && !process.env.MONGO_URL && !process.env.DB_URL) {
-      console.warn('⚠️  No MongoDB connection string found in environment variables. Falling back to localhost.');
+    if (!mongoURI) {
+      throw new Error('MONGO_URL environment variable is not set');
     }
 
     const conn = await mongoose.connect(mongoURI, {
       serverSelectionTimeoutMS: 30000,
       connectTimeoutMS: 30000,
     });
+
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     return true;
+
   } catch (error) {
-    console.warn(`⚠️  MongoDB Connection Warning: ${error.message}`);
-    console.warn('Server will continue without database. Some features will not work.');
+    console.error(`❌ MongoDB Connection Error: ${error.message}`);
     return false;
   }
 };

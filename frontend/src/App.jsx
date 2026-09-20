@@ -1,21 +1,22 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useContext } from 'react';
+import { Suspense, lazy, useContext } from 'react';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import Notification from './components/Notification';
 import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
-import Landing from './pages/Landing';
-import Dashboard from './pages/Dashboard';
-import Expenses from './pages/Expenses';
-import Budget from './pages/Budget';
-import TaxPlanner from './pages/TaxPlanner';
-import SalaryAnalyzer from './pages/SalaryAnalyzer';
-import Reports from './pages/Reports';
-import Goals from './pages/Goals';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Settings from './pages/Settings';
+
+const Landing = lazy(() => import('./pages/Landing'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Expenses = lazy(() => import('./pages/Expenses'));
+const Budget = lazy(() => import('./pages/Budget'));
+const TaxPlanner = lazy(() => import('./pages/TaxPlanner'));
+const SalaryAnalyzer = lazy(() => import('./pages/SalaryAnalyzer'));
+const Reports = lazy(() => import('./pages/Reports'));
+const Goals = lazy(() => import('./pages/Goals'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const Settings = lazy(() => import('./pages/Settings'));
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }) => {
@@ -43,20 +44,22 @@ function App() {
       <NotificationProvider>
         <Notification />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/transactions" element={<ProtectedRoute><Expenses /></ProtectedRoute>} />
-          <Route path="/budget" element={<ProtectedRoute><Budget /></ProtectedRoute>} />
-          <Route path="/tax-planner" element={<ProtectedRoute><TaxPlanner /></ProtectedRoute>} />
-          <Route path="/salary-analyzer" element={<ProtectedRoute><SalaryAnalyzer /></ProtectedRoute>} />
-          <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-          <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-          </Routes>
+          <Suspense fallback={<div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading...</div>}>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/transactions" element={<ProtectedRoute><Expenses /></ProtectedRoute>} />
+              <Route path="/budget" element={<ProtectedRoute><Budget /></ProtectedRoute>} />
+              <Route path="/tax-planner" element={<ProtectedRoute><TaxPlanner /></ProtectedRoute>} />
+              <Route path="/salary-analyzer" element={<ProtectedRoute><SalaryAnalyzer /></ProtectedRoute>} />
+              <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+              <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
+              <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </NotificationProvider>
     </AuthProvider>

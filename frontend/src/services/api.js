@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-// Use environment variable if available, otherwise use the deployed backend link
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://indian-tax-expense-planner.onrender.com/api';
+// Accept either the backend origin or an origin that already includes /api.
+const configuredApiUrl = import.meta.env.VITE_API_URL || 'https://indian-tax-expense-planner.onrender.com';
+const API_BASE_URL = `${configuredApiUrl.replace(/\/$/, '').replace(/\/api$/, '')}/api`;
 
 const api = axios.create({
   baseURL: API_BASE_URL,

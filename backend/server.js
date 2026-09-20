@@ -32,13 +32,17 @@ app.use(cors({
       .split(',')
       .map(url => url.trim())
       .filter(Boolean);
-    const isLocalOrigin = origin === 'http://localhost:5173';
+    const isLocalOrigin = origin === 'http://localhost:5173' || origin === 'http://localhost:3000';
     const isProjectVercelOrigin = origin && /^https:\/\/indian-tax-expense-planner(?:-[a-z0-9-]+)?\.vercel\.app$/.test(origin);
     const isAllowedOrigin = !origin || isLocalOrigin || isProjectVercelOrigin || allowedOrigins.includes(origin);
 
-    callback(isAllowedOrigin ? null : new Error('Origin not allowed by CORS'), isAllowedOrigin);
+    if (isAllowedOrigin) {
+      return callback(null, true);
+    }
+
+    callback(new Error('Origin not allowed by CORS'));
   },
-  credentials: true
+  credentials: true,
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

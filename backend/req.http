@@ -1,0 +1,253 @@
+# Indian Tax & Expense Planner API Testing
+@authToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhMGQ3YjQyMGE1MWY4NTdmOGI3YzJiZSIsImlhdCI6MTc3OTI2ODQ2MywiZXhwIjoxNzgxODYwNDYzfQ.g5XtILJJboAi1PfWrLS2zD_Dg5Ea4YOTjBXgfBExPHY
+### 1. Root Route
+GET http://localhost:5000/
+Accept: application/json
+
+### 2. Register User
+# @name register
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Aryan Sharma",
+  "email": "aryan.sharma@example.com",
+  "password": "securepassword123"
+}
+
+### 3. Login User
+# @name login
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "aryan.sharma@example.com",
+  "password": "securepassword123"
+}
+
+### 4. Get Profile (Requires Authentication)
+GET http://localhost:5000/api/auth/profile
+Authorization: Bearer {{authToken}}
+
+### 5. Update Profile / Deductions (Requires Authentication)
+PUT http://localhost:5000/api/auth/update-profile
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "monthlyIncome": 95000,
+  "taxRegime": "new",
+  "deductions": {
+    "section80C": 50000,
+    "section80D": 15000,
+    "nps": 20000,
+    "hraReceived": 15000,
+    "rentPaid": 18000
+  }
+}
+
+### 6. Create Monthly Budget Category Limit (Requires Authentication)
+POST http://localhost:5000/api/budget/create
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "category": "Food",
+  "limit": 8000,
+  "month": 5,
+  "year": 2026
+}
+
+### 7. Get All Budgets (Requires Authentication)
+GET http://localhost:5000/api/budget?month=5&year=2026
+Authorization: Bearer {{authToken}}
+
+### 8. Get Budget Status vs Actual Spending (Requires Authentication)
+GET http://localhost:5000/api/budget/status/current?month=5&year=2026
+Authorization: Bearer {{authToken}}
+
+### 9. Log standard Expense (Requires Authentication)
+POST http://localhost:5000/api/expenses/add
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "amount": 2500,
+  "category": "Food",
+  "description": "Weekly grocery list items",
+  "date": "2026-05-20",
+  "isTaxSaving": false
+}
+
+### 10. Log Tax-Saving Expense (Requires Authentication)
+POST http://localhost:5000/api/expenses/add
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "amount": 10000,
+  "category": "Investment",
+  "description": "ELSS Tax Saving Mutual Fund SIP",
+  "date": "2026-05-20",
+  "isTaxSaving": true,
+  "taxSection": "80C"
+}
+
+### 11. Retrieve Expenses List with filters (Requires Authentication)
+GET http://localhost:5000/api/expenses?page=1&limit=5&category=Food
+Authorization: Bearer {{authToken}}
+
+### 12. Retrieve Monthly Expenses category Summary (Requires Authentication)
+GET http://localhost:5000/api/expenses/summary/monthly?month=5&year=2026
+Authorization: Bearer {{authToken}}
+
+### 13. Calculate Old vs New Tax Regimes (Requires Authentication)
+POST http://localhost:5000/api/tax/calculate
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "grossIncome": 1140000,
+  "deductions": {
+    "section80C": 120000,
+    "section80D": 20000
+  }
+}
+
+### 14. Get Personal Tax-Saving Suggestions Engine (Requires Authentication)
+GET http://localhost:5000/api/tax/suggestions
+Authorization: Bearer {{authToken}}
+
+### 15. Save a Tax Snapshot Scenario (Requires Authentication)
+POST http://localhost:5000/api/tax/save
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "financialYear": "2025-26",
+  "regime": "new",
+  "grossIncome": 1140000,
+  "deductions": {
+    "section80C": 120000,
+    "section80D": 20000
+  }
+}
+
+### 16. Get Saved Tax Snapshot History (Requires Authentication)
+GET http://localhost:5000/api/tax/history
+Authorization: Bearer {{authToken}}
+
+### 17. Get Dashboard Summary KPIs (Requires Authentication)
+GET http://localhost:5000/api/dashboard/summary
+Authorization: Bearer {{authToken}}
+
+### 18. Get Chart Aggregates (Requires Authentication)
+GET http://localhost:5000/api/dashboard/charts
+Authorization: Bearer {{authToken}}
+
+### 19. Get Analytics Trends for Last 6 Months (Requires Authentication)
+GET http://localhost:5000/api/analytics/monthly-expenses
+Authorization: Bearer {{authToken}}
+
+### 20. Get Savings Deductions comparison against Limit Ceilings (Requires Authentication)
+GET http://localhost:5000/api/analytics/savings
+Authorization: Bearer {{authToken}}
+
+### 21. Get Regime comparison Details (Requires Authentication)
+GET http://localhost:5000/api/analytics/tax-overview
+Authorization: Bearer {{authToken}}
+
+### 22. Get Detailed PDF-ready Tax Report (Requires Authentication)
+GET http://localhost:5000/api/tax/report
+Authorization: Bearer {{authToken}}
+
+### 23. Get Specific Expense by ID (Requires Authentication)
+# Replace placeholder ID with an actual Mongo ObjectId from List response
+GET http://localhost:5000/api/expenses/PLACEHOLDER_EXPENSE_ID
+Authorization: Bearer {{authToken}}
+
+### 24. Update Specific Expense (Requires Authentication)
+# Replace placeholder ID with an actual Mongo ObjectId
+PUT http://localhost:5000/api/expenses/update/PLACEHOLDER_EXPENSE_ID
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "amount": 2800,
+  "description": "Weekly grocery list items (updated)"
+}
+
+### 25. Delete Specific Expense ( Requires Authentication)
+# Replace placeholder ID with an actual Mongo ObjectId
+DELETE http://localhost:5000/api/expenses/delete/PLACEHOLDER_EXPENSE_ID
+Authorization: Bearer {{authToken}}
+
+### 26. Get Expenses Filtered by Category (Requires Authentication)
+GET http://localhost:5000/api/expenses/category/Food
+Authorization: Bearer {{authToken}}
+
+### 27. Get Specific Budget by ID (Requires Authentication)
+# Replace placeholder ID with an actual Mongo ObjectId
+GET http://localhost:5000/api/budget/PLACEHOLDER_BUDGET_ID
+Authorization: Bearer {{authToken}}
+
+### 28. Update Specific Budget Limit (Requires Authentication)
+# Replace placeholder ID with an actual Mongo ObjectId
+PUT http://localhost:5000/api/budget/update/PLACEHOLDER_BUDGET_ID
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "limit": 9000
+}
+
+### 29. Delete Specific Budget Limit (Requires Authentication)
+# Replace placeholder ID with an actual Mongo ObjectId
+DELETE http://localhost:5000/api/budget/delete/PLACEHOLDER_BUDGET_ID
+Authorization: Bearer {{authToken}}
+
+### 30. Get Latest Salary Slip Details (Requires Authentication)
+GET http://localhost:5000/api/salary/details
+Authorization: Bearer {{authToken}}
+
+### 31. Get Salary Slip Upload History (Requires Authentication)
+GET http://localhost:5000/api/salary/history
+Authorization: Bearer {{authToken}}
+
+### 32. Finalize Salary Components & Sync to User profile (Requires Authentication)
+# Replace placeholder ID with a salary slip ID from the upload/details response
+POST http://localhost:5000/api/salary/analyze
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "id": "PLACEHOLDER_SALARY_SLIP_ID",
+  "syncToProfile": true,
+  "parsedData": {
+    "basicSalary": 40000,
+    "hra": 16000,
+    "lta": 5000,
+    "providentFund": 4800,
+    "professionalTax": 200,
+    "incomeTaxDeducted": 3000,
+    "otherAllowances": 15000,
+    "grossSalary": 76000,
+    "netSalary": 68000
+  }
+}
+
+### 33. Delete Salary Slip Record and File (Requires Authentication)
+
+DELETE http://localhost:5000/api/salary/delete/PLACEHOLDER_SALARY_SLIP_ID
+Authorization: Bearer {{authToken}}
+
+### 34. Upload Salary Slip PDF (Requires Authentication)
+POST http://localhost:5000/api/salary/upload
+Authorization: Bearer {{authToken}}
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="test_slip.pdf"
+Content-Type: application/pdf
+< ./test_slip.pdf
+--WebAppBoundary--  
+

@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+
+@theme {
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-secondary: #8b5cf6;
+  
+  --color-success: #10b981;
+  --color-danger: #ef4444;
+  --color-warning: #f59e0b;
+  
+  --color-bg-dark: #0b0f19;
+  --color-surface: rgba(255, 255, 255, 0.03);
+  --color-surface-hover: rgba(255, 255, 255, 0.06);
+  --color-glass-border: rgba(255, 255, 255, 0.08);
+
+  --font-inter: 'Inter', -apple-system, sans-serif;
+}
+
+@layer base {
+  * {
+    @apply m-0 p-0 box-border font-inter;
+  }
+  
+  body {
+    @apply bg-bg-dark text-slate-100 min-h-screen overflow-x-hidden;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-bg-dark;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-glass-border rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-500;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-surface backdrop-blur-md border border-glass-border rounded-2xl p-6 shadow-lg transition-all duration-300;
+  }
+  
+  .glass-card:hover {
+    @apply -translate-y-1 bg-surface-hover border-white/15;
+  }
+  
+  .btn {
+    @apply px-6 py-3 rounded-lg font-medium cursor-pointer transition-all duration-200 text-white border-none;
+  }
+  
+  .btn-primary {
+    @apply bg-primary hover:bg-primary-hover hover:shadow-[0_4px_12px_rgba(59,130,246,0.3)];
+  }
+  
+  .btn-gradient {
+    @apply bg-gradient-to-br from-primary to-secondary hover:shadow-[0_4px_12px_rgba(139,92,246,0.4)];
+  }
+  
+  .btn-outline {
+    @apply bg-transparent border border-glass-border text-slate-100 hover:bg-surface-hover hover:border-slate-400;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-3 bg-black/20 border border-glass-border rounded-lg text-slate-100 outline-none transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary/20;
+  }
+  
+  .text-accent {
+    @apply bg-gradient-to-br from-primary to-secondary bg-clip-text text-transparent;
+  }
+}

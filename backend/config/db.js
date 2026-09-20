@@ -12,7 +12,12 @@ if (dnsServers.length > 0) {
 
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGO_URI || process.env.DB_URL || 'mongodb://localhost:27017/tax_planner';
+    const mongoURI = process.env.MONGO_URI || process.env.MONGO_URL || process.env.DB_URL || 'mongodb://localhost:27017/tax_planner';
+
+    if (!process.env.MONGO_URI && !process.env.MONGO_URL && !process.env.DB_URL) {
+      console.warn('⚠️  No MongoDB connection string found in environment variables. Falling back to localhost.');
+    }
+
     const conn = await mongoose.connect(mongoURI, {
       serverSelectionTimeoutMS: 30000,
       connectTimeoutMS: 30000,

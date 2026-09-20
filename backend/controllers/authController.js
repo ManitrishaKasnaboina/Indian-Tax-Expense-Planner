@@ -1,11 +1,23 @@
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
+
+const ensureDatabaseConnection = (res) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({
+      message: 'Database is unavailable. Please check MongoDB connectivity and try again.'
+    });
+  }
+  return null;
+};
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
+
+  if (ensureDatabaseConnection(res)) return;
 
   try {
     const userExists = await User.findOne({ email });
@@ -42,6 +54,8 @@ const registerUser = async (req, res) => {
 // @access  Public
 const authUser = async (req, res) => {
   const { email, password } = req.body;
+
+  if (ensureDatabaseConnection(res)) return;
 
   try {
     const user = await User.findOne({ email });
